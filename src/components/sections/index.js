@@ -1,0 +1,9 @@
+export { default as areas } from "./areas";
+export { default as teaser } from "./teaser";
+export { default as protocol } from "./protocol";
+export { default as trust_bar } from "./trust-bar";
+export { default as faq } from "./faq";
+export { default as statement } from "./statement";
+export { default as strengths } from "./strengths";
+export { default as spotlight } from "./spotlight";
+export { default as final_cta } from "./final-cta";
