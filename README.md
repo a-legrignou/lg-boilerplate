@@ -24,7 +24,7 @@ Tout est automatique — y compris l'installation de Docker si absent.
 ```bash
 make dev        # reprendre le travail (démarre tout si nécessaire)
 make snapshot   # après avoir modifié le schéma dans Directus
-git push        # déploie en production automatiquement
+make push       # commit + push Git + déploiement automatique
 ```
 
 ---
@@ -33,7 +33,7 @@ git push        # déploie en production automatiquement
 
 ```bash
 make infra      # configure les VPS + guide Dokploy (une seule fois)
-git push        # → CI/CD → front + back déployés automatiquement
+make push       # → CI/CD → front + back déployés automatiquement
 ```
 
 ---
@@ -58,7 +58,8 @@ make infra      # configure les serveurs de production
 make snapshot   # schéma Directus → Git
 make stop       # arrêter les conteneurs
 make reset      # repartir de zéro (⚠ efface la DB)
-make deploy     # déploiement manuel
+make push       # commit + push Git + déploiement
+make deploy     # déploiement manuel (sans push Git)
 make help       # toutes les commandes
 ```
 
