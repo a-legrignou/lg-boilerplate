@@ -1,0 +1,786 @@
+# Directus schema snapshot — apply with: directus schema apply snapshots/initial-schema.yml
+# Generated for Directus 11+
+version: 1
+vendor: postgres
+
+collections:
+  - collection: pages
+    meta:
+      note: 'Pages CMS réutilisables en front.'
+      icon: 'file-text'
+      hidden: false
+    schema:
+      name: pages
+      display_template: '{{title}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: title
+        type: string
+        meta:
+          interface: input
+          note: 'Titre de la page'
+        schema:
+          is_nullable: false
+          max_length: 191
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: 'URL friendly slug'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+      - field: status
+        type: string
+        meta:
+          interface: select-dropdown
+          options:
+            choices:
+              - text: 'Draft'
+                value: draft
+              - text: 'Published'
+                value: published
+          display: labels
+        schema:
+          is_nullable: false
+          default_value: draft
+      - field: seo_title
+        type: string
+        meta:
+          interface: input
+          note: 'Titre SEO'
+        schema:
+          is_nullable: true
+          max_length: 191
+      - field: seo_description
+        type: text
+        meta:
+          interface: textarea
+          note: 'Description meta SEO'
+        schema:
+          is_nullable: true
+      - field: content
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Contenu structuré type page builder'
+        schema:
+          is_nullable: true
+      - field: publish_date
+        type: datetime
+        meta:
+          interface: datetime
+          note: 'Date de publication'
+        schema:
+          is_nullable: true
+      - field: og_image
+        type: file
+        meta:
+          interface: file
+          note: 'Image Open Graph'
+        schema:
+          is_nullable: true
+      - field: updated_at
+        type: datetime
+        meta:
+          interface: datetime
+          special: updated_at
+        schema:
+          is_nullable: false
+          default_value: 'CURRENT_TIMESTAMP'
+
+  - collection: page_blocks
+    meta:
+      note: 'Blocs de contenu réutilisables pour les pages.'
+      icon: 'layout'
+      hidden: false
+    schema:
+      name: page_blocks
+      display_template: '{{block_type}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: page
+        type: uuid
+        meta:
+          interface: select-dropdown
+          note: 'Page parente'
+          options:
+            collection: pages
+        schema:
+          is_nullable: false
+      - field: block_type
+        type: string
+        meta:
+          interface: select-dropdown
+          options:
+            choices:
+              - text: 'Hero'
+                value: hero
+              - text: 'Text'
+                value: text
+              - text: 'Feature grid'
+                value: feature_grid
+        schema:
+          is_nullable: false
+      - field: content
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Données estructurées du bloc'
+        schema:
+          is_nullable: true
+      - field: position
+        type: integer
+        meta:
+          interface: input
+          note: 'Ordre d’affichage du bloc'
+        schema:
+          is_nullable: false
+          default_value: 0
+
+  - collection: authors
+    meta:
+      note: 'Auteurs du blog pour lier le contenu aux profils.'
+      icon: 'user'
+      hidden: false
+    schema:
+      name: authors
+      display_template: '{{first_name}} {{last_name}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: first_name
+        type: string
+        meta:
+          interface: input
+          note: 'Prénom'
+        schema:
+          is_nullable: false
+          max_length: 100
+      - field: last_name
+        type: string
+        meta:
+          interface: input
+          note: 'Nom de famille'
+        schema:
+          is_nullable: false
+          max_length: 100
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: "Identifiant URL de l'auteur"
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+      - field: bio
+        type: text
+        meta:
+          interface: textarea
+          note: 'Biographie courte'
+        schema:
+          is_nullable: true
+      - field: avatar
+        type: file
+        meta:
+          interface: file
+          note: 'Photo de profil'
+        schema:
+          is_nullable: true
+
+  - collection: categories
+    meta:
+      note: 'Catégories pour organiser les articles.'
+      icon: 'tag'
+      hidden: false
+    schema:
+      name: categories
+      display_template: '{{name}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: name
+        type: string
+        meta:
+          interface: input
+          note: 'Nom de la catégorie'
+        schema:
+          is_nullable: false
+          max_length: 100
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: 'Slug unique'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+
+  - collection: tags
+    meta:
+      note: 'Étiquettes pour la recherche thématique.'
+      icon: 'hash'
+      hidden: false
+    schema:
+      name: tags
+      display_template: '{{name}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: name
+        type: string
+        meta:
+          interface: input
+          note: 'Nom du tag'
+        schema:
+          is_nullable: false
+          max_length: 100
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: 'Slug unique'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+
+  - collection: articles
+    meta:
+      note: 'Articles du blog avec SEO et contenus riches.'
+      icon: 'book-open'
+      hidden: false
+    schema:
+      name: articles
+      display_template: '{{title}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: title
+        type: string
+        meta:
+          interface: input
+          note: 'Titre de l’article'
+        schema:
+          is_nullable: false
+          max_length: 191
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: 'Slug SEO'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+      - field: excerpt
+        type: text
+        meta:
+          interface: textarea
+          note: 'Résumé SEO'
+        schema:
+          is_nullable: true
+      - field: content
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Contenu enrichi ou markdown'
+        schema:
+          is_nullable: true
+      - field: cover_image
+        type: file
+        meta:
+          interface: file
+          note: 'Image principale'
+        schema:
+          is_nullable: true
+      - field: author
+        type: uuid
+        meta:
+          interface: select-dropdown
+          options:
+            collection: authors
+          note: 'Auteur de l’article'
+        schema:
+          is_nullable: true
+      - field: categories
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Catégories associées'
+        schema:
+          is_nullable: true
+      - field: tags
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Tags associés'
+        schema:
+          is_nullable: true
+      - field: published_at
+        type: datetime
+        meta:
+          interface: datetime
+          note: 'Date de publication'
+        schema:
+          is_nullable: true
+      - field: reading_time
+        type: integer
+        meta:
+          interface: input
+          note: 'Temps de lecture estimé'
+        schema:
+          is_nullable: true
+      - field: seo_title
+        type: string
+        meta:
+          interface: input
+          note: 'Titre SEO'
+        schema:
+          is_nullable: true
+          max_length: 191
+      - field: seo_description
+        type: text
+        meta:
+          interface: textarea
+          note: 'Meta description'
+        schema:
+          is_nullable: true
+      - field: status
+        type: string
+        meta:
+          interface: select-dropdown
+          options:
+            choices:
+              - text: 'Draft'
+                value: draft
+              - text: 'Published'
+                value: published
+          display: labels
+        schema:
+          is_nullable: false
+          default_value: draft
+
+  - collection: product_categories
+    meta:
+      note: 'Catégories produits'
+      icon: 'folder'
+      hidden: false
+    schema:
+      name: product_categories
+      display_template: '{{name}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: name
+        type: string
+        meta:
+          interface: input
+          note: 'Nom de la catégorie'
+        schema:
+          is_nullable: false
+          max_length: 120
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: 'Slug unique'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+
+  - collection: products
+    meta:
+      note: 'Fiches produit prêtes à l’affichage catalogue.'
+      icon: 'shopping-bag'
+      hidden: false
+    schema:
+      name: products
+      display_template: '{{name}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: name
+        type: string
+        meta:
+          interface: input
+          note: 'Nom du produit'
+        schema:
+          is_nullable: false
+          max_length: 191
+      - field: slug
+        type: string
+        meta:
+          interface: input
+          note: 'Slug produit'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 191
+      - field: description
+        type: text
+        meta:
+          interface: textarea
+          note: 'Description courte'
+        schema:
+          is_nullable: true
+      - field: details
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Bloc de fonctionnalités et spécifications'
+        schema:
+          is_nullable: true
+      - field: price
+        type: decimal
+        meta:
+          interface: input
+          note: 'Prix de base'
+          width: half
+        schema:
+          is_nullable: false
+          precision: 10
+          scale: 2
+          default_value: 0
+      - field: status
+        type: string
+        meta:
+          interface: select-dropdown
+          options:
+            choices:
+              - text: 'Draft'
+                value: draft
+              - text: 'Published'
+                value: published
+          display: labels
+        schema:
+          is_nullable: false
+          default_value: draft
+      - field: categories
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Catégories liées'
+        schema:
+          is_nullable: true
+      - field: cover_image
+        type: file
+        meta:
+          interface: file
+          note: 'Image produit principale'
+        schema:
+          is_nullable: true
+
+  - collection: product_variants
+    meta:
+      note: 'Variantes de produit (taille, couleur, SKU).'
+      icon: 'layers'
+      hidden: false
+    schema:
+      name: product_variants
+      display_template: '{{sku}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: product
+        type: uuid
+        meta:
+          interface: select-dropdown
+          options:
+            collection: products
+          note: 'Produit parent'
+        schema:
+          is_nullable: false
+      - field: sku
+        type: string
+        meta:
+          interface: input
+          note: 'SKU variant'
+        schema:
+          is_nullable: false
+          is_unique: true
+          max_length: 120
+      - field: price
+        type: decimal
+        meta:
+          interface: input
+          note: 'Prix de la variante'
+          width: half
+        schema:
+          is_nullable: false
+          precision: 10
+          scale: 2
+          default_value: 0
+      - field: stock
+        type: integer
+        meta:
+          interface: input
+          note: 'Stock disponible'
+        schema:
+          is_nullable: false
+          default_value: 0
+      - field: options
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Options produit (couleur, taille, etc.)'
+        schema:
+          is_nullable: true
+
+  - collection: product_images
+    meta:
+      note: 'Images liées aux produits.'
+      icon: 'image'
+      hidden: false
+    schema:
+      name: product_images
+      display_template: '{{title}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: product
+        type: uuid
+        meta:
+          interface: select-dropdown
+          options:
+            collection: products
+          note: 'Produit lié'
+        schema:
+          is_nullable: false
+      - field: title
+        type: string
+        meta:
+          interface: input
+          note: 'Titre de l’image'
+        schema:
+          is_nullable: true
+          max_length: 120
+      - field: image
+        type: file
+        meta:
+          interface: file
+          note: 'Fichier image'
+        schema:
+          is_nullable: false
+      - field: position
+        type: integer
+        meta:
+          interface: input
+          note: 'Ordre d’affichage'
+        schema:
+          is_nullable: false
+          default_value: 0
+
+  - collection: user_preferences
+    meta:
+      note: 'Préférences personnalisées des comptes utilisateurs.'
+      icon: 'settings'
+      hidden: false
+    schema:
+      name: user_preferences
+      display_template: '{{user_email}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: user
+        type: uuid
+        meta:
+          interface: select-dropdown
+          options:
+            collection: directus_users
+          note: 'Utilisateur lié'
+        schema:
+          is_nullable: false
+      - field: user_email
+        type: string
+        meta:
+          interface: input
+          note: 'Email utilisateur'
+        schema:
+          is_nullable: true
+          max_length: 191
+      - field: locale
+        type: string
+        meta:
+          interface: select-dropdown
+          options:
+            choices:
+              - text: 'Français'
+                value: fr
+              - text: 'Anglais'
+                value: en
+        schema:
+          is_nullable: false
+          default_value: fr
+      - field: newsletter_opt_in
+        type: boolean
+        meta:
+          interface: toggle
+          note: 'Consentement newsletter'
+        schema:
+          is_nullable: false
+          default_value: false
+
+  - collection: monitoring_events
+    meta:
+      note: 'Événements de monitoring et logs métier pour l’admin.'
+      icon: 'activity'
+      hidden: false
+    schema:
+      name: monitoring_events
+      display_template: '{{event_type}}'
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          interface: uuid
+        schema:
+          is_primary_key: true
+          is_nullable: false
+          default_value: 'uuid_generate_v4()'
+      - field: event_type
+        type: string
+        meta:
+          interface: input
+          note: 'Type d’événement'
+        schema:
+          is_nullable: false
+          max_length: 120
+      - field: payload
+        type: json
+        meta:
+          interface: json-editor
+          note: 'Données détaillées'
+        schema:
+          is_nullable: true
+      - field: severity
+        type: string
+        meta:
+          interface: select-dropdown
+          options:
+            choices:
+              - text: 'Info'
+                value: info
+              - text: 'Warning'
+                value: warning
+              - text: 'Error'
+                value: error
+        schema:
+          is_nullable: false
+          default_value: info
+      - field: created_at
+        type: datetime
+        meta:
+          interface: datetime
+          special: created_at
+        schema:
+          is_nullable: false
+          default_value: 'CURRENT_TIMESTAMP'
+
+relations:
+  # page_blocks → pages (many-to-one)
+  - collection: page_blocks
+    field: page
+    related_collection: pages
+    meta:
+      on_delete: CASCADE
+
+  # articles → authors (many-to-one)
+  - collection: articles
+    field: author
+    related_collection: authors
+    meta:
+      on_delete: SET NULL
+
+  # product_variants → products (many-to-one)
+  - collection: product_variants
+    field: product
+    related_collection: products
+    meta:
+      on_delete: CASCADE
+
+  # product_images → products (many-to-one)
+  - collection: product_images
+    field: product
+    related_collection: products
+    meta:
+      on_delete: CASCADE
+
+  # user_preferences → directus_users (many-to-one)
+  - collection: user_preferences
+    field: user
+    related_collection: directus_users
+    meta:
+      on_delete: CASCADE

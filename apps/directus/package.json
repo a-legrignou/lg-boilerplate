@@ -1,0 +1,9 @@
+{
+  "name": "@coreo/directus",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "bootstrap": "docker compose -f ../../infra/dokploy/docker-compose.yml exec directus npx directus bootstrap",
+    "schema:apply": "docker compose -f ../../infra/dokploy/docker-compose.yml exec directus npx directus schema apply --yes /directus/extensions/snapshots/initial-schema.yml"
+  }
+}

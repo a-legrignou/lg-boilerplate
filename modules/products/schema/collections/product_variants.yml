@@ -1,0 +1,61 @@
+collection: product_variants
+meta:
+  note: 'Variantes de produit (taille, couleur, SKU).'
+  icon: 'layers'
+  hidden: false
+schema:
+  name: product_variants
+  display_template: '{{sku}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: product
+    type: uuid
+    meta:
+      interface: select-dropdown
+      options:
+        collection: products
+      note: 'Produit parent'
+    schema:
+      is_nullable: false
+  - field: sku
+    type: string
+    meta:
+      interface: input
+      note: 'SKU variant'
+    schema:
+      is_nullable: false
+      is_unique: true
+      max_length: 120
+  - field: price
+    type: decimal
+    meta:
+      interface: input
+      note: 'Prix de la variante'
+      width: half
+    schema:
+      is_nullable: false
+      precision: 10
+      scale: 2
+      default_value: 0
+  - field: stock
+    type: integer
+    meta:
+      interface: input
+      note: 'Stock disponible'
+    schema:
+      is_nullable: false
+      default_value: 0
+  - field: options
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Options produit (couleur, taille, etc.)'
+    schema:
+      is_nullable: true

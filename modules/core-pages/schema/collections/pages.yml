@@ -1,0 +1,92 @@
+collection: pages
+meta:
+  note: 'Pages CMS réutilisables en front.'
+  icon: 'file-text'
+  hidden: false
+schema:
+  name: pages
+  display_template: '{{title}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: title
+    type: string
+    meta:
+      interface: input
+      note: 'Titre de la page'
+    schema:
+      is_nullable: false
+      max_length: 191
+  - field: slug
+    type: string
+    meta:
+      interface: input
+      note: 'URL friendly slug'
+    schema:
+      is_nullable: false
+      is_unique: true
+      max_length: 191
+  - field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: 'Draft'
+            value: draft
+          - text: 'Published'
+            value: published
+      display: labels
+    schema:
+      is_nullable: false
+      default_value: draft
+  - field: seo_title
+    type: string
+    meta:
+      interface: input
+      note: 'Titre SEO'
+    schema:
+      is_nullable: true
+      max_length: 191
+  - field: seo_description
+    type: text
+    meta:
+      interface: textarea
+      note: 'Description meta SEO'
+    schema:
+      is_nullable: true
+  - field: content
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Contenu structuré type page builder'
+    schema:
+      is_nullable: true
+  - field: publish_date
+    type: datetime
+    meta:
+      interface: datetime
+      note: 'Date de publication'
+    schema:
+      is_nullable: true
+  - field: og_image
+    type: file
+    meta:
+      interface: file
+      note: 'Image Open Graph'
+    schema:
+      is_nullable: true
+  - field: updated_at
+    type: datetime
+    meta:
+      interface: datetime
+      special: updated_at
+    schema:
+      is_nullable: false
+      default_value: 'CURRENT_TIMESTAMP'

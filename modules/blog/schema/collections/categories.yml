@@ -1,0 +1,34 @@
+collection: categories
+meta:
+  note: 'Catégories pour organiser les articles.'
+  icon: 'tag'
+  hidden: false
+schema:
+  name: categories
+  display_template: '{{name}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: name
+    type: string
+    meta:
+      interface: input
+      note: 'Nom de la catégorie'
+    schema:
+      is_nullable: false
+      max_length: 100
+  - field: slug
+    type: string
+    meta:
+      interface: input
+      note: 'Slug unique'
+    schema:
+      is_nullable: false
+      is_unique: true
+      max_length: 191

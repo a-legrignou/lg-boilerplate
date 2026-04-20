@@ -1,0 +1,121 @@
+collection: articles
+meta:
+  note: 'Articles du blog avec SEO et contenus riches.'
+  icon: 'book-open'
+  hidden: false
+schema:
+  name: articles
+  display_template: '{{title}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: title
+    type: string
+    meta:
+      interface: input
+      note: 'Titre de l’article'
+    schema:
+      is_nullable: false
+      max_length: 191
+  - field: slug
+    type: string
+    meta:
+      interface: input
+      note: 'Slug SEO'
+    schema:
+      is_nullable: false
+      is_unique: true
+      max_length: 191
+  - field: excerpt
+    type: text
+    meta:
+      interface: textarea
+      note: 'Résumé SEO'
+    schema:
+      is_nullable: true
+  - field: content
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Contenu enrichi ou markdown'
+    schema:
+      is_nullable: true
+  - field: cover_image
+    type: file
+    meta:
+      interface: file
+      note: 'Image principale'
+    schema:
+      is_nullable: true
+  - field: author
+    type: uuid
+    meta:
+      interface: select-dropdown
+      options:
+        collection: authors
+      note: 'Auteur de l’article'
+    schema:
+      is_nullable: true
+  - field: categories
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Catégories associées'
+    schema:
+      is_nullable: true
+  - field: tags
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Tags associés'
+    schema:
+      is_nullable: true
+  - field: published_at
+    type: datetime
+    meta:
+      interface: datetime
+      note: 'Date de publication'
+    schema:
+      is_nullable: true
+  - field: reading_time
+    type: integer
+    meta:
+      interface: input
+      note: 'Temps de lecture estimé'
+    schema:
+      is_nullable: true
+  - field: seo_title
+    type: string
+    meta:
+      interface: input
+      note: 'Titre SEO'
+    schema:
+      is_nullable: true
+      max_length: 191
+  - field: seo_description
+    type: text
+    meta:
+      interface: textarea
+      note: 'Meta description'
+    schema:
+      is_nullable: true
+  - field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: 'Draft'
+            value: draft
+          - text: 'Published'
+            value: published
+      display: labels
+    schema:
+      is_nullable: false
+      default_value: draft

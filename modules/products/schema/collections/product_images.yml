@@ -1,0 +1,49 @@
+collection: product_images
+meta:
+  note: 'Images liées aux produits.'
+  icon: 'image'
+  hidden: false
+schema:
+  name: product_images
+  display_template: '{{title}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: product
+    type: uuid
+    meta:
+      interface: select-dropdown
+      options:
+        collection: products
+      note: 'Produit lié'
+    schema:
+      is_nullable: false
+  - field: title
+    type: string
+    meta:
+      interface: input
+      note: 'Titre de l’image'
+    schema:
+      is_nullable: true
+      max_length: 120
+  - field: image
+    type: file
+    meta:
+      interface: file
+      note: 'Fichier image'
+    schema:
+      is_nullable: false
+  - field: position
+    type: integer
+    meta:
+      interface: input
+      note: 'Ordre d’affichage'
+    schema:
+      is_nullable: false
+      default_value: 0

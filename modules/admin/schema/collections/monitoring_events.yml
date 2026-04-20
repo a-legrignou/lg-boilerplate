@@ -1,0 +1,55 @@
+collection: monitoring_events
+meta:
+  note: 'Événements de monitoring et logs métier pour l’admin.'
+  icon: 'activity'
+  hidden: false
+schema:
+  name: monitoring_events
+  display_template: '{{event_type}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: event_type
+    type: string
+    meta:
+      interface: input
+      note: 'Type d’événement'
+    schema:
+      is_nullable: false
+      max_length: 120
+  - field: payload
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Données détaillées'
+    schema:
+      is_nullable: true
+  - field: severity
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: 'Info'
+            value: info
+          - text: 'Warning'
+            value: warning
+          - text: 'Error'
+            value: error
+    schema:
+      is_nullable: false
+      default_value: info
+  - field: created_at
+    type: datetime
+    meta:
+      interface: datetime
+      special: created_at
+    schema:
+      is_nullable: false
+      default_value: 'CURRENT_TIMESTAMP'

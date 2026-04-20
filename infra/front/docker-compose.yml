@@ -1,0 +1,33 @@
+### Serveur front — Next.js (image GHCR)
+### Déployé par Dokploy sur le VPS front
+###
+### Variables injectées depuis Dokploy UI / GitHub Secrets
+
+services:
+  web:
+    image: ghcr.io/${GITHUB_REPOSITORY}/web:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DIRECTUS_URL: ${DIRECTUS_URL}
+      DIRECTUS_STATIC_TOKEN: ${DIRECTUS_STATIC_TOKEN}
+      NEXT_REVALIDATE_TOKEN: ${NEXT_REVALIDATE_TOKEN}
+      JWT_SECRET: ${JWT_SECRET}
+      # Modules activés
+      NEXT_PUBLIC_ENABLE_BLOG: ${NEXT_PUBLIC_ENABLE_BLOG:-true}
+      NEXT_PUBLIC_ENABLE_PRODUCTS: ${NEXT_PUBLIC_ENABLE_PRODUCTS:-false}
+      NEXT_PUBLIC_ENABLE_AUTH: ${NEXT_PUBLIC_ENABLE_AUTH:-true}
+      NEXT_PUBLIC_ENABLE_ADMIN: ${NEXT_PUBLIC_ENABLE_ADMIN:-false}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.web.rule=Host(`${FRONTEND_DOMAIN}`)
+      - traefik.http.routers.web.tls=true
+      - traefik.http.routers.web.tls.certresolver=letsencrypt
+      - traefik.http.services.web.loadbalancer.server.port=3000
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s

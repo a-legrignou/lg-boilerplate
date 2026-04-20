@@ -10,7 +10,7 @@
  *   - An admin static token (or email/password) exported as env vars
  *
  * Usage:
- *   DIRECTUS_URL=https://admin.coreo-group.fr \
+ *   DIRECTUS_URL=http://localhost:8055 \
  *   DIRECTUS_ADMIN_TOKEN=your_admin_token \
  *   node scripts/directus-setup.js
  *
@@ -24,16 +24,16 @@
  *   7. Prints the generated service token — copy to DIRECTUS_STATIC_TOKEN
  */
 
-const BASE = (process.env.DIRECTUS_URL || "").replace(/\/$/, "");
-const TOKEN = process.env.DIRECTUS_ADMIN_TOKEN || "";
+const BASE = (process.env.DIRECTUS_URL || '').replace(/\/$/, '');
+const TOKEN = process.env.DIRECTUS_ADMIN_TOKEN || '';
 
 if (!BASE || !TOKEN) {
-  console.error("❌  Set DIRECTUS_URL and DIRECTUS_ADMIN_TOKEN env vars.");
+  console.error('❌  Set DIRECTUS_URL and DIRECTUS_ADMIN_TOKEN env vars.');
   process.exit(1);
 }
 
 const headers = {
-  "Content-Type": "application/json",
+  'Content-Type': 'application/json',
   Authorization: `Bearer ${TOKEN}`,
 };
 
@@ -44,63 +44,73 @@ async function api(method, path, body) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`${method} ${path} → ${res.status}: ${JSON.stringify(json.errors ?? json)}`);
+  if (!res.ok)
+    throw new Error(
+      `${method} ${path} → ${res.status}: ${JSON.stringify(json.errors ?? json)}`
+    );
   return json.data ?? json;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function findOrCreate(listPath, createPath, matchFn, payload) {
-  const items = await api("GET", listPath);
+  const items = await api('GET', listPath);
   const existing = Array.isArray(items) ? items.find(matchFn) : null;
   if (existing) {
-    console.log(`  ✓ Already exists: ${payload.name ?? payload.field ?? JSON.stringify(payload)}`);
+    console.log(
+      `  ✓ Already exists: ${payload.name ?? payload.field ?? JSON.stringify(payload)}`
+    );
     return existing;
   }
-  const created = await api("POST", createPath, payload);
-  console.log(`  + Created: ${payload.name ?? payload.field ?? JSON.stringify(payload)}`);
+  const created = await api('POST', createPath, payload);
+  console.log(
+    `  + Created: ${payload.name ?? payload.field ?? JSON.stringify(payload)}`
+  );
   return created;
 }
 
 // ─── 1. Roles ─────────────────────────────────────────────────────────────────
 
 async function setupRoles() {
-  console.log("\n[1] Setting up roles…");
+  console.log('\n[1] Setting up roles…');
 
   const serviceRole = await findOrCreate(
-    "/roles",
-    "/roles",
-    (r) => r.name === "Service Account",
+    '/roles',
+    '/roles',
+    (r) => r.name === 'Service Account',
     {
-      name: "Service Account",
-      description: "Internal service role — full API access. Never assign to human users.",
+      name: 'Service Account',
+      description:
+        'Internal service role — full API access. Never assign to human users.',
       admin_access: true,
       app_access: false,
-    },
+    }
   );
 
   const communityRole = await findOrCreate(
-    "/roles",
-    "/roles",
-    (r) => r.name === "Community",
+    '/roles',
+    '/roles',
+    (r) => r.name === 'Community',
     {
-      name: "Community",
-      description: "Registered users — access to public and community-tier articles.",
+      name: 'Community',
+      description:
+        'Registered users — access to public and community-tier articles.',
       admin_access: false,
       app_access: false,
-    },
+    }
   );
 
   const premiumRole = await findOrCreate(
-    "/roles",
-    "/roles",
-    (r) => r.name === "Premium",
+    '/roles',
+    '/roles',
+    (r) => r.name === 'Premium',
     {
-      name: "Premium",
-      description: "Premium subscribers — full access to all articles and PDF exports.",
+      name: 'Premium',
+      description:
+        'Premium subscribers — full access to all articles and PDF exports.',
       admin_access: false,
       app_access: false,
-    },
+    }
   );
 
   return { serviceRole, communityRole, premiumRole };
@@ -109,30 +119,35 @@ async function setupRoles() {
 // ─── 2. Service account user + token ──────────────────────────────────────────
 
 async function setupServiceAccount(serviceRoleId) {
-  console.log("\n[2] Setting up service account user…");
+  console.log('\n[2] Setting up service account user…');
 
-  const users = await api("GET", "/users?filter[email][_eq]=service@coreo-internal.local");
+  const users = await api(
+    'GET',
+    '/users?filter[email][_eq]=service@app-internal.local'
+  );
   let serviceUser = Array.isArray(users) ? users[0] : null;
 
   if (!serviceUser) {
-    serviceUser = await api("POST", "/users", {
-      email: "service@coreo-internal.local",
+    serviceUser = await api('POST', '/users', {
+      email: 'service@app-internal.local',
       password: crypto.randomUUID(), // random — login not needed
-      first_name: "Service",
-      last_name: "Account",
+      first_name: 'Service',
+      last_name: 'Account',
       role: serviceRoleId,
-      status: "active",
+      status: 'active',
     });
-    console.log("  + Service user created");
+    console.log('  + Service user created');
   } else {
-    console.log("  ✓ Service user already exists");
+    console.log('  ✓ Service user already exists');
   }
 
   // Generate a static token for the service account
   // In Directus 11, static tokens are set on the user record directly
-  const staticToken = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+  const staticToken =
+    crypto.randomUUID().replace(/-/g, '') +
+    crypto.randomUUID().replace(/-/g, '');
 
-  await api("PATCH", `/users/${serviceUser.id}`, { token: staticToken });
+  await api('PATCH', `/users/${serviceUser.id}`, { token: staticToken });
   console.log(`  + Static token generated (copy to DIRECTUS_STATIC_TOKEN):`);
   console.log(`\n  DIRECTUS_STATIC_TOKEN=${staticToken}\n`);
 
@@ -142,58 +157,73 @@ async function setupServiceAccount(serviceRoleId) {
 // ─── 3. Posts collection fields ───────────────────────────────────────────────
 
 async function setupPostsFields() {
-  console.log("\n[3] Adding fields to `posts` collection…");
+  console.log('\n[3] Adding fields to `posts` collection…');
 
   // tier field
-  const tiers = await api("GET", "/fields/posts");
-  const hasTier = Array.isArray(tiers) && tiers.some((f) => f.field === "tier");
+  const tiers = await api('GET', '/fields/posts');
+  const hasTier = Array.isArray(tiers) && tiers.some((f) => f.field === 'tier');
 
   if (!hasTier) {
-    await api("POST", "/fields/posts", {
-      field: "tier",
-      type: "string",
+    await api('POST', '/fields/posts', {
+      field: 'tier',
+      type: 'string',
       meta: {
-        interface: "select-dropdown",
+        interface: 'select-dropdown',
         options: {
           choices: [
-            { text: "Public (tous)", value: null },
-            { text: "Community", value: "community" },
-            { text: "Premium", value: "premium" },
+            { text: 'Public (tous)', value: null },
+            { text: 'Community', value: 'community' },
+            { text: 'Premium', value: 'premium' },
           ],
         },
-        display: "labels",
+        display: 'labels',
         display_options: {
           choices: [
-            { text: "Public", value: null, foreground: "#4a4540", background: "#f0ece4" },
-            { text: "Community", value: "community", foreground: "#7a8f85", background: "rgba(122,143,133,0.14)" },
-            { text: "Premium",   value: "premium",   foreground: "#c6a75c", background: "rgba(198,167,92,0.14)" },
+            {
+              text: 'Public',
+              value: null,
+              foreground: '#4a4540',
+              background: '#f0ece4',
+            },
+            {
+              text: 'Community',
+              value: 'community',
+              foreground: '#7a8f85',
+              background: 'rgba(122,143,133,0.14)',
+            },
+            {
+              text: 'Premium',
+              value: 'premium',
+              foreground: '#c6a75c',
+              background: 'rgba(198,167,92,0.14)',
+            },
           ],
         },
         note: "Niveau d'accès requis pour lire cet article.",
-        width: "half",
+        width: 'half',
       },
       schema: {
         is_nullable: true,
         default_value: null,
       },
     });
-    console.log("  + Field `tier` created on posts");
+    console.log('  + Field `tier` created on posts');
   } else {
-    console.log("  ✓ Field `tier` already exists on posts");
+    console.log('  ✓ Field `tier` already exists on posts');
   }
 
   // slug field
-  const hasSlug = Array.isArray(tiers) && tiers.some((f) => f.field === "slug");
+  const hasSlug = Array.isArray(tiers) && tiers.some((f) => f.field === 'slug');
 
   if (!hasSlug) {
-    await api("POST", "/fields/posts", {
-      field: "slug",
-      type: "string",
+    await api('POST', '/fields/posts', {
+      field: 'slug',
+      type: 'string',
       meta: {
-        interface: "input",
+        interface: 'input',
         options: { slug: true, trim: true },
-        note: "URL-friendly identifier — used in canonical URLs. Leave blank to use numeric ID.",
-        width: "half",
+        note: 'URL-friendly identifier — used in canonical URLs. Leave blank to use numeric ID.',
+        width: 'half',
       },
       schema: {
         is_nullable: true,
@@ -201,49 +231,46 @@ async function setupPostsFields() {
         default_value: null,
       },
     });
-    console.log("  + Field `slug` created on posts");
+    console.log('  + Field `slug` created on posts');
   } else {
-    console.log("  ✓ Field `slug` already exists on posts");
+    console.log('  ✓ Field `slug` already exists on posts');
   }
 }
 
 // ─── 4. Permissions ───────────────────────────────────────────────────────────
 
 async function setupPermissions(communityRoleId, premiumRoleId) {
-  console.log("\n[4] Setting up role permissions for `posts`…");
+  console.log('\n[4] Setting up role permissions for `posts`…');
 
   // Community role: read posts where tier is null or "community"
-  await api("POST", "/permissions", {
+  await api('POST', '/permissions', {
     role: communityRoleId,
-    collection: "posts",
-    action: "read",
-    fields: ["*"],
+    collection: 'posts',
+    action: 'read',
+    fields: ['*'],
     permissions: {
-      _or: [
-        { tier: { _null: true } },
-        { tier: { _eq: "community" } },
-      ],
+      _or: [{ tier: { _null: true } }, { tier: { _eq: 'community' } }],
     },
     validation: {},
   }).catch((e) => {
-    if (e.message.includes("already")) return;
-    console.warn("  ⚠ Community permission:", e.message);
+    if (e.message.includes('already')) return;
+    console.warn('  ⚠ Community permission:', e.message);
   });
-  console.log("  + Community: read posts (public + community)");
+  console.log('  + Community: read posts (public + community)');
 
   // Premium role: read all posts
-  await api("POST", "/permissions", {
+  await api('POST', '/permissions', {
     role: premiumRoleId,
-    collection: "posts",
-    action: "read",
-    fields: ["*"],
+    collection: 'posts',
+    action: 'read',
+    fields: ['*'],
     permissions: {},
     validation: {},
   }).catch((e) => {
-    if (e.message.includes("already")) return;
-    console.warn("  ⚠ Premium permission:", e.message);
+    if (e.message.includes('already')) return;
+    console.warn('  ⚠ Premium permission:', e.message);
   });
-  console.log("  + Premium: read all posts");
+  console.log('  + Premium: read all posts');
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -257,14 +284,20 @@ async function main() {
     await setupPostsFields();
     await setupPermissions(communityRole.id, premiumRole.id);
 
-    console.log("\n✅  Setup complete.\n");
-    console.log("Next steps:");
-    console.log("  1. Copy DIRECTUS_STATIC_TOKEN to your .env.local");
-    console.log("  2. Assign the 'Community' or 'Premium' role to users in Directus admin");
-    console.log("  3. Set tier on existing posts (null = public, community, premium)");
-    console.log("  4. Optionally fill in the slug field for SEO-friendly URLs\n");
+    console.log('\n✅  Setup complete.\n');
+    console.log('Next steps:');
+    console.log('  1. Copy DIRECTUS_STATIC_TOKEN to your .env.local');
+    console.log(
+      "  2. Assign the 'Community' or 'Premium' role to users in Directus admin"
+    );
+    console.log(
+      '  3. Set tier on existing posts (null = public, community, premium)'
+    );
+    console.log(
+      '  4. Optionally fill in the slug field for SEO-friendly URLs\n'
+    );
   } catch (err) {
-    console.error("\n❌  Setup failed:", err.message);
+    console.error('\n❌  Setup failed:', err.message);
     process.exit(1);
   }
 }

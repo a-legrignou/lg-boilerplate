@@ -1,0 +1,55 @@
+collection: user_preferences
+meta:
+  note: 'Préférences personnalisées des comptes utilisateurs.'
+  icon: 'settings'
+  hidden: false
+schema:
+  name: user_preferences
+  display_template: '{{user_email}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: user
+    type: uuid
+    meta:
+      interface: select-dropdown
+      options:
+        collection: directus_users
+      note: 'Utilisateur lié'
+    schema:
+      is_nullable: false
+  - field: user_email
+    type: string
+    meta:
+      interface: input
+      note: 'Email utilisateur'
+    schema:
+      is_nullable: true
+      max_length: 191
+  - field: locale
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: 'Français'
+            value: fr
+          - text: 'Anglais'
+            value: en
+    schema:
+      is_nullable: false
+      default_value: fr
+  - field: newsletter_opt_in
+    type: boolean
+    meta:
+      interface: toggle
+      note: 'Consentement newsletter'
+    schema:
+      is_nullable: false
+      default_value: false

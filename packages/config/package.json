@@ -1,0 +1,11 @@
+{
+  "name": "@coreo/config",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "exports": {
+    "./tsconfig.json": "./tsconfig.json",
+    "./eslint.config.mjs": "./eslint.config.mjs",
+    "./tailwind.ts": "./tailwind.ts"
+  }
+}

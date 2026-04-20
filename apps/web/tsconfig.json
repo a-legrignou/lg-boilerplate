@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "../..",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@lib/*": ["../../packages/lib/src/*"],
+      "@ui/*": ["../../packages/ui/src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "../../packages/lib/src/**/*",
+    "../../packages/ui/src/**/*"
+  ],
+  "exclude": ["node_modules"]
+}

@@ -86,7 +86,7 @@ EOF
 echo "✅  .env.local créé (à compléter)"
 
 # ── 5. Nettoyer les URLs Coreo hardcodées dans les sources ────────────
-echo "🔍  Remplacement des références coreo-group.fr…"
+echo "🔍  Nettoyage des références Coreo…"
 
 # PDF reports — brandUrl par défaut
 find src/components/pdf src/app/api -name "*.ts" -o -name "*.tsx" | while read -r f; do
@@ -98,7 +98,7 @@ find src/components/pdf src/app/api -name "*.ts" -o -name "*.tsx" | while read -
     "$f" && rm -f "${f}.bak"
 done
 
-echo "✅  Références coreo-group.fr remplacées"
+echo "✅  Nettoyage terminé"
 
 # ── 6. Activer le mock dans le code ──────────────────────────────────
 echo "✅  Mock activé — le site démarre sans Directus"

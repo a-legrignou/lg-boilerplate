@@ -1,0 +1,55 @@
+collection: page_blocks
+meta:
+  note: 'Blocs de contenu réutilisables pour les pages.'
+  icon: 'layout'
+  hidden: false
+schema:
+  name: page_blocks
+  display_template: '{{block_type}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: page
+    type: uuid
+    meta:
+      interface: select-dropdown
+      note: 'Page parente'
+      options:
+        collection: pages
+    schema:
+      is_nullable: false
+  - field: block_type
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: 'Hero'
+            value: hero
+          - text: 'Text'
+            value: text
+          - text: 'Feature grid'
+            value: feature_grid
+    schema:
+      is_nullable: false
+  - field: content
+    type: json
+    meta:
+      interface: json-editor
+      note: 'Données estructurées du bloc'
+    schema:
+      is_nullable: true
+  - field: position
+    type: integer
+    meta:
+      interface: input
+      note: 'Ordre d’affichage du bloc'
+    schema:
+      is_nullable: false
+      default_value: 0

@@ -1,47 +1,51 @@
 #!/bin/bash
-# =============================================================
-# deploy.sh — Script de déploiement Coreo Group
-# Exécuté sur le serveur via GitHub Actions
-# =============================================================
 
-set -euo pipefail  # Arrête si une commande échoue
+set -e
 
-APP_DIR="/var/www/coreo"
-PM2_APP="coreo"
-LOG_FILE="/var/log/coreo/deploy.log"
-NODE_VERSION="22"
+echo "🚀 Déploiement"
 
-log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"; }
+# Vérifications pré-déploiement
+if [[ $(git status --porcelain) ]]; then
+  echo "❌ Working tree pas propre. Committez vos changements."
+  exit 1
+fi
 
-# ── Charger nvm si présent ────────────────────────────────────
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+if [[ $(git branch --show-current) != "main" ]]; then
+  echo "❌ Pas sur la branche main."
+  exit 1
+fi
 
-mkdir -p "$(dirname "$LOG_FILE")"
+# Tests locaux
+echo "🧪 Lancement des tests..."
+pnpm test
+pnpm test:e2e
 
-log "════════════════════════════════════"
-log "Déploiement démarré"
-log "Commit : $(git -C "$APP_DIR" rev-parse --short HEAD 2>/dev/null || echo 'inconnu')"
+# Tag automatique (semver)
+current_version=$(node -p "require('./package.json').version")
+new_version=$(echo $current_version | awk -F. '{print $1"."$2"."($3+1)}')
+echo "📦 Nouvelle version: $new_version"
+npm version $new_version --no-git-tag-version
+git add package.json
+git commit -m "chore: bump version to $new_version"
 
-# ── 1. Pull ───────────────────────────────────────────────────
-log "1/4 — git pull..."
-cd "$APP_DIR"
-git pull origin main
+# Push
+echo "📤 Push vers remote..."
+git push origin main --tags
 
-log "Nouveau commit : $(git rev-parse --short HEAD)"
+# Déploiement Dokploy
+echo "⚙️ Déclenchement déploiement Dokploy..."
+curl -X POST $DOKPLOY_API_URL/api/deploy \
+  -H "Authorization: Bearer $DOKPLOY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"projectId": "your-project-id"}'
 
-# ── 2. Dépendances ───────────────────────────────────────────
-log "2/4 — npm ci..."
-npm ci
-
-# ── 3. Build ─────────────────────────────────────────────────
-# Le .env reste sur le serveur et n'est jamais touché
-log "3/4 — npm run build..."
-npm run build
-
-# ── 4. Reload PM2 (zero-downtime) ────────────────────────────
-log "4/4 — pm2 reload $PM2_APP..."
-pm2 reload "$PM2_APP" --update-env
-
-log "Déploiement terminé ✓"
-log "════════════════════════════════════"
+# Healthcheck post-déploiement
+echo "🔍 Vérification santé..."
+sleep 30
+if curl -f $SITE_URL/api/health > /dev/null; then
+  echo "✅ Déploiement réussi !"
+else
+  echo "❌ Healthcheck échoué. Rollback nécessaire."
+  # TODO: rollback automatique
+  exit 1
+fi

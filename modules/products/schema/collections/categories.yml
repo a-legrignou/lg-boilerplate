@@ -1,0 +1,34 @@
+collection: product_categories
+meta:
+  note: 'Catégories produits'
+  icon: 'folder'
+  hidden: false
+schema:
+  name: product_categories
+  display_template: '{{name}}'
+fields:
+  - field: id
+    type: uuid
+    meta:
+      interface: uuid
+    schema:
+      is_primary_key: true
+      is_nullable: false
+      default_value: 'uuid_generate_v4()'
+  - field: name
+    type: string
+    meta:
+      interface: input
+      note: 'Nom de la catégorie'
+    schema:
+      is_nullable: false
+      max_length: 120
+  - field: slug
+    type: string
+    meta:
+      interface: input
+      note: 'Slug unique'
+    schema:
+      is_nullable: false
+      is_unique: true
+      max_length: 191
