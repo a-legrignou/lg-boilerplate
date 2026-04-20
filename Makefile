@@ -1,4 +1,4 @@
-.PHONY: dev infra snapshot stop reset deploy backup \
+.PHONY: dev infra snapshot stop reset deploy push backup \
         build lint typecheck test test-e2e help \
         _infra-up _setup
 
@@ -34,8 +34,16 @@ reset:
 	docker compose -f infra/local/docker-compose.yml down -v
 	@echo "Volumes supprimés. Relance avec : make dev"
 
-## Déploiement manuel (le CI/CD le fait automatiquement via git push)
+## Déploiement manuel sur les serveurs
 deploy:
+	@bash scripts/deploy.sh
+
+## Push Git + déploiement sur les serveurs
+push:
+	@git add -A
+	@git diff --cached --quiet && echo "Rien à committer." && exit 0 || true
+	@printf "Message de commit: " && read msg && git commit -m "$$msg"
+	@git push origin main
 	@bash scripts/deploy.sh
 
 backup:
@@ -72,5 +80,6 @@ help:
 	@echo ""
 	@echo "  make stop       Arrêter les conteneurs"
 	@echo "  make reset      Repartir de zéro (⚠ efface la DB)"
-	@echo "  make deploy     Déploiement manuel"
+	@echo "  make deploy     Déploiement manuel sur les serveurs
+  make push       Push Git + déploiement automatique"
 	@echo ""
