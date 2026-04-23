@@ -11,6 +11,7 @@ export default [
       '**/dist/**',
       '**/build/**',
       '**/.turbo/**',
+      '**/next-env.d.ts',
       '**/postcss.config.*',
       '**/tailwind.config.*',
       '**/next.config.*',

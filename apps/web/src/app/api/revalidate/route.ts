@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   if (tagInput) {
     const tags = Array.isArray(tagInput) ? tagInput : [tagInput];
     for (const tag of tags) {
-      revalidateTag(tag);
+      revalidateTag(tag, 'max');
       revalidated.push(`tag:${tag}`);
     }
   }

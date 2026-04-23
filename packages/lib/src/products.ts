@@ -15,7 +15,7 @@ export const ProductVariantSchema = z.object({
   sku: z.string(),
   price: z.number(),
   stock: z.number(),
-  options: z.record(z.any()).optional(),
+  options: z.record(z.string(), z.any()).optional(),
 });
 
 export const ProductSchema = z.object({
@@ -23,7 +23,7 @@ export const ProductSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().optional(),
-  details: z.record(z.any()).optional(),
+  details: z.record(z.string(), z.any()).optional(),
   price: z.number(),
   status: z.enum(['draft', 'published']),
   categories: z.array(ProductCategorySchema).optional(),

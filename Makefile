@@ -80,6 +80,6 @@ help:
 	@echo ""
 	@echo "  make stop       Arrêter les conteneurs"
 	@echo "  make reset      Repartir de zéro (⚠ efface la DB)"
-	@echo "  make deploy     Déploiement manuel sur les serveurs
-  make push       Push Git + déploiement automatique"
+	@echo "  make deploy     Déploiement manuel sur les serveurs"
+	@echo "  make push       Push Git + déploiement automatique"
 	@echo ""
