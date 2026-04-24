@@ -1,4 +1,5 @@
 // @ts-check
+import path from 'path';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -11,6 +12,8 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   output: 'standalone',
+  // Monorepo standalone: include workspace files in trace
+  outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
 
   // Security headers applied to every route
   async headers() {

@@ -49,7 +49,7 @@ function buildDirectusUrl(path: string, params: Record<string, unknown> = {}) {
 async function fetchDirectus<T>(
   path: string,
   params: Record<string, unknown> = {}
-) {
+): Promise<T | undefined> {
   const url = buildDirectusUrl(path, params);
   const headers = new Headers({
     Accept: 'application/json',
@@ -60,20 +60,33 @@ async function fetchDirectus<T>(
     headers.set('Authorization', `Bearer ${env.DIRECTUS_STATIC_TOKEN}`);
   }
 
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers,
-  });
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers,
+    });
 
-  if (!response.ok) {
-    const errorText = await response
-      .text()
-      .catch(() => 'Unable to fetch Directus collection');
-    throw new Error(errorText);
+    if (!response.ok) {
+      const errorText = await response
+        .text()
+        .catch(() => 'Unable to fetch Directus collection');
+      throw new Error(errorText);
+    }
+
+    const payload = (await response.json()) as DirectusFetchResult<T>;
+    return payload.data;
+  } catch (error) {
+    // During `next build`, Directus may be unreachable (e.g. image baked in CI
+    // before infra is provisioned). Return undefined so generateStaticParams
+    // falls back to on-demand rendering, and rethrow at runtime.
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      console.warn(
+        `[build] Skipping Directus fetch ${path}: ${(error as Error).message}`
+      );
+      return undefined;
+    }
+    throw error;
   }
-
-  const payload = (await response.json()) as DirectusFetchResult<T>;
-  return payload.data;
 }
 
 export async function fetchCollection<T = unknown>(

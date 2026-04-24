@@ -1,35 +1,53 @@
-### Stage 1 — deps
+# syntax=docker/dockerfile:1.7
+#
+# Monorepo pnpm + Next.js standalone.
+# Build context: repo root (configured in CI workflow).
+
+### Stage 1 — deps (cache-friendly: only package metadata)
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
+WORKDIR /repo
+RUN corepack enable
 
-COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable pnpm && pnpm install --frozen-lockfile
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/directus/package.json ./apps/directus/
+COPY packages/config/package.json ./packages/config/
+COPY packages/lib/package.json ./packages/lib/
+COPY packages/ui/package.json ./packages/ui/
+
+RUN pnpm install --frozen-lockfile
 
 ### Stage 2 — builder
 FROM node:20-alpine AS builder
-WORKDIR /app
+RUN apk add --no-cache libc6-compat
+WORKDIR /repo
+RUN corepack enable
 
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /repo ./
 COPY . .
 
-# Ces vars sont nécessaires à la compilation Next.js (NEXT_PUBLIC_*)
-# Elles sont injectées depuis les secrets CI/CD au moment du build
-ARG NEXT_PUBLIC_SITE_URL
-ARG NEXT_PUBLIC_DIRECTUS_URL
-ARG NEXT_PUBLIC_DIRECTUS_ASSETS
+# Public vars bake into the client bundle — override via CI build-args.
+ARG NEXT_PUBLIC_SITE_URL=https://build.example.com
+ARG NEXT_PUBLIC_DIRECTUS_URL=https://build.example.com
+ARG NEXT_PUBLIC_DIRECTUS_ASSETS=https://build.example.com/assets/
 ARG NEXT_PUBLIC_APP_ENV=production
 
+# Server-only placeholders: satisfy zod env schema at build time.
+# Never used at runtime — real values are injected by the deploy platform.
 ENV NEXT_TELEMETRY_DISABLED=1 \
     NODE_ENV=production \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
     NEXT_PUBLIC_DIRECTUS_URL=$NEXT_PUBLIC_DIRECTUS_URL \
     NEXT_PUBLIC_DIRECTUS_ASSETS=$NEXT_PUBLIC_DIRECTUS_ASSETS \
-    NEXT_PUBLIC_APP_ENV=$NEXT_PUBLIC_APP_ENV
+    NEXT_PUBLIC_APP_ENV=$NEXT_PUBLIC_APP_ENV \
+    DIRECTUS_URL=https://build.example.com \
+    DIRECTUS_PUBLIC_URL=https://build.example.com \
+    NEXT_REVALIDATE_TOKEN=build-time-placeholder-token
 
-RUN corepack enable pnpm && pnpm build
+RUN pnpm --filter web build
 
-### Stage 3 — runner (image minimale)
+### Stage 3 — runner (minimal image with Next standalone output)
 FROM node:20-alpine AS runner
 WORKDIR /app
 
@@ -40,13 +58,14 @@ ENV NODE_ENV=production \
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Standalone output (next.config.mjs doit avoir output: 'standalone')
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Next.js standalone in monorepo mode emits apps/web/server.js under the
+# standalone dir, with node_modules and traced workspace files alongside.
+COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/public ./apps/web/public
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]
