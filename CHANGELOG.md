@@ -9,6 +9,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 ## [Unreleased]
 
 ### Ajouté
+
 - **Authentification Directus 11 native** — cookies `httpOnly` (`ds_access` + `ds_refresh`)
   - Routes API : `/api/auth/login`, `/api/auth/logout`, `/api/auth/refresh`, `/api/auth/me`
   - `src/lib/utils/auth.js` : `getSession`, `getUserTier`, `canAccessPost`
@@ -45,6 +46,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
   - `draft` → jamais visible
 
 ### Corrigé
+
 - Erreur d'hydratation React sur `LanguageSwitcher` (IDs Radix UI aléatoires) — rendu différé côté client avec `mounted` state
 - Erreur d'hydratation sur le compteur de maintenance — `suppressHydrationWarning` sur les chiffres
 
@@ -53,6 +55,7 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 ## [0.1.0] — 2026-03-03
 
 ### Ajouté
+
 - Initialisation du projet depuis `create-next-app`
 - Intégration Directus CMS (`@directus/sdk`)
 - Routing i18n `[locale]` (fr / en)
