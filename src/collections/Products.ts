@@ -4,18 +4,19 @@ import {
   slugField,
   coverField,
   excerptField,
+  tagsField,
   seoOverrideFields,
 } from "../lib/fields";
 
 export const Products: CollectionConfig = {
   slug: "products",
-  labels: { singular: "Offre", plural: "Offres" },
+  labels: { singular: "Produit", plural: "Produits" },
   admin: {
     group: "Contenu",
     useAsTitle: "title",
-    defaultColumns: ["title", "slug", "category", "_status", "updatedAt"],
+    defaultColumns: ["title", "slug", "_status", "updatedAt"],
     description:
-      "Offres / services / produits commercialisés. Chaque offre a sa page dédiée.",
+      "Produits / offres / services commercialisés. Une page par produit. Métadonnées légères, contenu libre dans la description.",
   },
   access: {
     read: readPublishedOrStaff,
@@ -27,12 +28,37 @@ export const Products: CollectionConfig = {
   fields: [
     slugField({ source: "title" }),
     coverField(),
+    {
+      name: "pricing",
+      type: "text",
+      localized: true,
+      label: "Tarif indicatif",
+      admin: {
+        position: "sidebar",
+        description: "Ex: « À partir de 5 k€ », « Sur devis »",
+      },
+    },
+    {
+      name: "duration",
+      type: "text",
+      localized: true,
+      label: "Durée",
+      admin: {
+        position: "sidebar",
+        description: "Ex: « 2-3 mois », « 1 jour »",
+      },
+    },
+    tagsField({
+      sidebar: true,
+      description:
+        "Sert de catégorie (« audit », « formation », « dirigeants »…). Filtrage et regroupement sur le site.",
+    }),
     ...seoOverrideFields(),
     {
       type: "tabs",
       tabs: [
         {
-          label: "Présentation",
+          label: "Contenu",
           fields: [
             {
               name: "title",
@@ -49,93 +75,8 @@ export const Products: CollectionConfig = {
               label: "Description",
               admin: {
                 description:
-                  "Présentation détaillée de l'offre. Affichée sur la page dédiée.",
+                  "Contenu libre. Structure-le comme tu veux : « Pour qui », « Pourquoi », « Comment », bénéfices, FAQ, etc.",
               },
-            },
-          ],
-        },
-        {
-          label: "Détails",
-          fields: [
-            {
-              type: "row",
-              fields: [
-                {
-                  name: "category",
-                  type: "select",
-                  label: "Catégorie",
-                  admin: {
-                    description: "Sert à filtrer / regrouper sur le site.",
-                  },
-                  options: [
-                    { label: "— Aucune", value: "none" },
-                    { label: "Conseil", value: "consulting" },
-                    { label: "Formation", value: "training" },
-                    { label: "Audit", value: "audit" },
-                    { label: "Implémentation", value: "implementation" },
-                    { label: "Support", value: "support" },
-                  ],
-                },
-                {
-                  name: "duration",
-                  type: "text",
-                  localized: true,
-                  label: "Durée",
-                  admin: { description: "Ex: « 2-3 mois », « 1 jour »" },
-                },
-                {
-                  name: "pricing",
-                  type: "text",
-                  localized: true,
-                  label: "Tarif indicatif",
-                  admin: {
-                    description: "Ex: « À partir de 5 k€ », « Sur devis »",
-                  },
-                },
-              ],
-            },
-            {
-              name: "audience",
-              type: "select",
-              hasMany: true,
-              label: "Cible",
-              admin: {
-                description: "Personae visés (peut en sélectionner plusieurs).",
-              },
-              options: [
-                { label: "Dirigeants", value: "leaders" },
-                { label: "Équipes tech", value: "tech" },
-                { label: "Équipes produit", value: "product" },
-                { label: "Équipes marketing", value: "marketing" },
-                { label: "Investisseurs", value: "investors" },
-              ],
-            },
-            {
-              name: "benefits",
-              type: "array",
-              localized: true,
-              label: "Bénéfices clés",
-              labels: { singular: "Bénéfice", plural: "Bénéfices" },
-              admin: { description: "3-5 puces qui résument la valeur." },
-              fields: [{ name: "value", type: "text", required: true }],
-            },
-          ],
-        },
-        {
-          label: "Méthodologie",
-          description: "Optionnel — explique pourquoi et comment.",
-          fields: [
-            {
-              name: "why",
-              type: "textarea",
-              localized: true,
-              label: "Pourquoi (le besoin client)",
-            },
-            {
-              name: "how",
-              type: "richText",
-              localized: true,
-              label: "Comment (notre approche)",
             },
           ],
         },

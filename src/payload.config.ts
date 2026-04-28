@@ -16,7 +16,6 @@ import sharp from "sharp";
 import { Users } from "./collections/Users";
 import { Media } from "./collections/Media";
 import { Posts } from "./collections/Posts";
-import { PostCategories } from "./collections/PostCategories";
 import { Pages } from "./collections/Pages";
 import { Snippets } from "./collections/Snippets";
 import { Team } from "./collections/Team";
@@ -41,8 +40,6 @@ const generateURL: GenerateURL = ({ doc, collectionSlug }) => {
     return `${base}/cas/${doc?.slug ?? ""}`;
   if (collectionSlug === "products") return `${base}/offres/${doc?.slug ?? ""}`;
   if (collectionSlug === "team") return `${base}/equipe/${doc?.slug ?? ""}`;
-  if (collectionSlug === "post-categories")
-    return `${base}/blog/categorie/${doc?.slug ?? ""}`;
   return base;
 };
 
@@ -68,7 +65,6 @@ export default buildConfig({
     Media,
     Pages,
     Posts,
-    PostCategories,
     Snippets,
     CaseStudies,
     Products,
@@ -96,14 +92,7 @@ export default buildConfig({
   }),
   plugins: [
     seoPlugin({
-      collections: [
-        "pages",
-        "posts",
-        "case-studies",
-        "products",
-        "team",
-        "post-categories",
-      ],
+      collections: ["pages", "posts", "case-studies", "products", "team"],
       uploadsCollection: "media",
       generateTitle,
       generateDescription,

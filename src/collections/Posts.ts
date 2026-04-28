@@ -47,17 +47,10 @@ export const Posts: CollectionConfig = {
     slugField({ source: "title" }),
     coverField(),
     authorField(),
-    {
-      name: "category",
-      type: "relationship",
-      relationTo: "post-categories",
-      label: "Catégorie",
-      admin: { position: "sidebar" },
-    },
     tagsField({
       sidebar: true,
       description:
-        "Tags pour related posts + filtrage. Format kebab-case recommandé.",
+        "Tags pour related posts + catégorisation + filtrage. Format kebab-case recommandé. Sert aussi de taxonomie (pas de collection séparée).",
     }),
     ...seoOverrideFields(),
     {

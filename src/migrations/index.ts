@@ -11,6 +11,7 @@ import * as migration_20260427_142717_split_settings_and_seo_and_enrich_brand fr
 import * as migration_20260427_150012_custom_css_and_variants from "./20260427_150012_custom_css_and_variants";
 import * as migration_20260427_172135_brand_v3_full_palette from "./20260427_172135_brand_v3_full_palette";
 import * as migration_20260428_110401_coreo_collections from "./20260428_110401_coreo_collections";
+import * as migration_20260428_123825_simplify_products_drop_categories from "./20260428_123825_simplify_products_drop_categories";
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260428_110401_coreo_collections.up,
     down: migration_20260428_110401_coreo_collections.down,
     name: "20260428_110401_coreo_collections",
+  },
+  {
+    up: migration_20260428_123825_simplify_products_drop_categories.up,
+    down: migration_20260428_123825_simplify_products_drop_categories.down,
+    name: "20260428_123825_simplify_products_drop_categories",
   },
 ];
