@@ -1,0 +1,10 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * Folio admin — overrides minimaux et ciblés.
+ * Une règle = une intention. Pas de !important sauf nécessité.
+ * ─────────────────────────────────────────────────────────────────────────*/
+
+/* Fond gris très léger sur le dashboard (1ère page après login) — fait ressortir
+   les cards colorées de BeforeDashboard sans toucher au reste de l'admin. */
+.dashboard {
+  background: var(--theme-elevation-50);
+}

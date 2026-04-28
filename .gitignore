@@ -1,0 +1,39 @@
+node_modules/
+.next/
+.turbo/
+dist/
+build/
+out/
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Payload
+src/payload-types.ts
+src/app/(payload)/admin/importMap.js
+
+# TS incremental build
+tsconfig.tsbuildinfo
+
+# Media uploads (Payload écrit ici par défaut, données utilisateur — pas dans git)
+media/
+
+# Tests / coverage
+coverage/
+.nyc_output/
+/playwright-report/
+/test-results/
+/playwright/.cache/
+
+# Docker volumes (si bind-mount)
+.docker-data/

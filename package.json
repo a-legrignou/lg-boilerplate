@@ -1,0 +1,100 @@
+{
+  "name": "folio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "payload": "PAYLOAD_CONFIG_PATH=src/payload.config.ts payload",
+    "generate:types": "PAYLOAD_CONFIG_PATH=src/payload.config.ts payload generate:types",
+    "generate:importmap": "PAYLOAD_CONFIG_PATH=src/payload.config.ts payload generate:importmap",
+    "auth:migrate": "better-auth migrate -y",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "seed": "tsx scripts/seed.ts",
+    "init": "tsx scripts/init.ts",
+    "folio:import": "tsx scripts/import.ts",
+    "folio:export": "tsx scripts/export.ts",
+    "folio:new": "tsx scripts/new-collection.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{md,json,yml,yaml,css}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.91.1",
+    "@payloadcms/db-postgres": "^3.30.0",
+    "@payloadcms/next": "^3.30.0",
+    "@payloadcms/plugin-form-builder": "^3.84.1",
+    "@payloadcms/plugin-redirects": "^3.84.1",
+    "@payloadcms/plugin-seo": "^3.84.1",
+    "@payloadcms/richtext-lexical": "^3.30.0",
+    "@payloadcms/ui": "^3.30.0",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.7",
+    "@sentry/nextjs": "^10.50.0",
+    "better-auth": "^1.6.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "next": "^16.0.0",
+    "payload": "^3.30.0",
+    "pg": "^8.20.0",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "resend": "^6.12.2",
+    "sharp": "^0.34.0",
+    "stripe": "^22.1.0",
+    "tailwind-merge": "^3.0.0",
+    "tw-animate-css": "^1.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "@next/eslint-plugin-next": "^16.2.4",
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@typescript-eslint/parser": "^8.59.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.5",
+    "dotenv": "^17.4.2",
+    "eslint": "^9.17.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.4.0",
+    "prettier-plugin-tailwindcss": "^0.6.0",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.5"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

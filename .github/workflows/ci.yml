@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main, payload]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: lg
+          POSTGRES_PASSWORD: lg
+          POSTGRES_DB: lg
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lg -d lg"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URI: postgres://lg:lg@localhost:5433/lg
+      PAYLOAD_SECRET: ci_payload_secret_must_be_at_least_16_chars
+      BETTER_AUTH_SECRET: ci_better_auth_secret_must_be_at_least_16_chars
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Migrate (Better Auth schema)
+        run: pnpm auth:migrate
+
+      - name: Migrate (Payload)
+        run: pnpm payload migrate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
